@@ -73,8 +73,6 @@ const App = () => {
         })
       : [];
 
-  console.log(contacts);
-
   return (
     <div className="app">
       <Section title="Phonebook">
