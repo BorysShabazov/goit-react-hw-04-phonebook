@@ -11,14 +11,13 @@ const App = () => {
 
   useEffect(() => {
     const getContacts = JSON.parse(localStorage.getItem('contacts'));
-    console.log(getContacts);
     if (getContacts) {
       setContacts(JSON.parse(localStorage.getItem('contacts')).contacts);
     }
   }, []);
 
   useEffect(() => {
-    if (contacts.length > 0) {
+    if (contacts.length >= 0) {
       localStorage.setItem('contacts', JSON.stringify({ contacts: contacts }));
     }
   }, [contacts]);
@@ -70,6 +69,8 @@ const App = () => {
   const visibleContacts = contacts.filter(contact => {
     return contact.name.toLocaleLowerCase().includes(normalizeFilter);
   });
+
+  console.log(contacts);
 
   return (
     <div className="app">
