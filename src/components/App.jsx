@@ -66,9 +66,12 @@ const App = () => {
 
   const normalizeFilter = filter.toLocaleLowerCase();
 
-  const visibleContacts = contacts.filter(contact => {
-    return contact.name.toLocaleLowerCase().includes(normalizeFilter);
-  });
+  const visibleContacts =
+    contacts.length > 0
+      ? contacts.filter(contact => {
+          return contact.name.toLocaleLowerCase().includes(normalizeFilter);
+        })
+      : [];
 
   console.log(contacts);
 
