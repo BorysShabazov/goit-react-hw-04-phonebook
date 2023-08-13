@@ -1,32 +1,36 @@
-import React, { Component } from 'react';
 import { Section } from './Section/Section';
 import { PhoneBook } from './PhoneBook/PhoneBook';
 import { Contacts } from './Contacts/Contacts';
 import { nanoid } from 'nanoid';
 import { Filter } from './Filter/Filter';
+import { useState, useEffect } from 'react';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidMount() {
+  useEffect(() => {
     const getContacts = JSON.parse(localStorage.getItem('contacts'));
-
+    console.log(getContacts);
     if (getContacts) {
-      this.setState({ contacts: JSON.parse(localStorage.getItem('contacts')) });
+      setContacts(JSON.parse(localStorage.getItem('contacts')).contacts);
     }
-  }
+  }, []);
 
-  onInput = evt => {
+  useEffect(() => {
+    if (contacts.length > 0) {
+      localStorage.setItem('contacts', JSON.stringify({ contacts: contacts }));
+    }
+  }, [contacts]);
+
+  const onInput = evt => {
     evt.preventDefault();
 
     const inputName = evt.currentTarget.name.value.trim();
     const inputNumber = evt.currentTarget.number.value.trim();
 
     if (
-      this.state.contacts.find(
+      contacts.find(
         el => el.name.toLocaleLowerCase() === inputName.toLocaleLowerCase()
       )
     ) {
@@ -34,66 +38,54 @@ class App extends Component {
       return;
     }
 
-    this.setState(prevState => {
+    setContacts(prevState => {
       const book = {
-        name: inputName,
-        number: inputNumber,
         contacts: [
-          ...prevState.contacts,
+          ...prevState,
           { number: inputNumber, name: inputName, id: nanoid() },
         ],
       };
 
-      localStorage.setItem('contacts', JSON.stringify(book.contacts));
-
-      return book;
+      localStorage.setItem('contacts', JSON.stringify(book));
+      return book.contacts;
     });
 
     evt.currentTarget.number.value = '';
     evt.currentTarget.name.value = '';
   };
 
-  onSearch = evt => {
+  const onSearch = evt => {
     const { value } = evt.currentTarget;
-    this.setState({
-      filter: value,
-    });
+    setFilter(value);
   };
 
-  deleteContact = async evt => {
-    await this.setState({
-      contacts: this.state.contacts.filter(
-        contact => contact.id !== evt.currentTarget.id
-      ),
-    });
-
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-  };
-
-  render() {
-    const normalizeFilter = this.state.filter.toLocaleLowerCase();
-
-    const visibleContacts = this.state.contacts.filter(contact => {
-      return contact.name.toLocaleLowerCase().includes(normalizeFilter);
-    });
-
-    return (
-      <div className="app">
-        <Section title="Phonebook">
-          <PhoneBook onInput={this.onInput} />
-        </Section>
-
-        <Section title="Contacts">
-          <Contacts
-            contacts={visibleContacts}
-            deleteContact={this.deleteContact}
-          >
-            <Filter onSearch={this.onSearch} value={this.state.filter} />
-          </Contacts>
-        </Section>
-      </div>
+  const deleteContact = evt => {
+    setContacts(
+      contacts.filter(contact => contact.id !== evt.currentTarget.id)
     );
-  }
-}
+  };
+
+  const normalizeFilter = filter.toLocaleLowerCase();
+
+  const visibleContacts = contacts.filter(contact => {
+    return contact.name.toLocaleLowerCase().includes(normalizeFilter);
+  });
+
+  return (
+    <div className="app">
+      <Section title="Phonebook">
+        <PhoneBook onInput={onInput} />
+      </Section>
+
+      <Section title="Contacts">
+        <Contacts contacts={visibleContacts} deleteContact={deleteContact}>
+          <Filter onSearch={onSearch} value={filter} />
+        </Contacts>
+      </Section>
+    </div>
+  );
+};
 
 export default App;
+
+// visibleContacts;
